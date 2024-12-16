@@ -27,7 +27,7 @@ const router = createBrowserRouter([{
         element : <AbutUs/>
     },
     {
-        path : 'products/:prefix',
+        path : 'categories/products/:prefix',
         element : <Products/>,
         loader: ({ params }) => {
             if (
@@ -43,7 +43,7 @@ const router = createBrowserRouter([{
         }
     },
     {
-        path : 'Categories',
+        path : 'categories',
         element : <Categories/>
     },
     {
