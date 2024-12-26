@@ -1,43 +1,42 @@
 import { useEffect } from "react";
-import { useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@store/hooks";
 import {
-  actGetProductsByCatPrefix,
-  productsCleanUp,
-} from "@store/products/productsSlice";
+  actGetWishlist,
+  productsFullInfoCleanUp,
+} from "@store/wishlist/WishlistSlice";
+
 import { GridList, Heading } from "@components/common";
 import { Product } from "@components/ecommerce";
 
 import { TProduct } from "@customTypes/product";
 import Loading from "@components/feedback/loading/Loading";
 
-const Products = () => {
-  const params = useParams();
+const Wishlist = () => {
   const dispatch = useAppDispatch();
-  const { loading, error, records } = useAppSelector((state) => state.products);
+  const { loading, error, productsFullInfo } = useAppSelector(
+    (state) => state.wishlist
+  );
   const cartItems = useAppSelector((state) => state.cart.items);
-  const wishListItemsId = useAppSelector((state) => state.wishlist.itemsId);
 
   useEffect(() => {
-    dispatch(actGetProductsByCatPrefix(params.prefix as string));
-
+    dispatch(actGetWishlist());
     return () => {
-      dispatch(productsCleanUp());
+      dispatch(productsFullInfoCleanUp());
     };
-  }, [dispatch, params]);
+  }, [dispatch]);
 
-  const productsFullInfo = records.map((el) => ({
+  const records = productsFullInfo.map((el) => ({
     ...el,
     quantity: cartItems[el.id],
-    isLiked: wishListItemsId.includes(el.id),
+    isLiked: true,
   }));
 
   return (
     <>
-      <Heading>{params.prefix?.toUpperCase()} Products</Heading>
+      <Heading>Your Wishlist</Heading>
       <Loading status={loading} error={error}>
         <GridList<TProduct>
-          records={productsFullInfo}
+          records={records}
           renderItem={(record) => <Product {...record} />}
         />
       </Loading>
@@ -45,4 +44,4 @@ const Products = () => {
   );
 };
 
-export default Products;
+export default Wishlist;

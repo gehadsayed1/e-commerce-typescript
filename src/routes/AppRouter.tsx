@@ -9,6 +9,8 @@ import Categories from '@pages/Categories';
 import Login from '@pages/Login';
 import Register from '@pages/Register';
 import Error from '@pages/Error';
+import Cart from '@pages/Cart';
+import Wishlist from '@pages/Wishlist';
 
 function AppRouter() {
     
@@ -26,6 +28,8 @@ const router = createBrowserRouter([{
         path : 'abut-us',
         element : <AbutUs/>
     },
+    {path: "/cart" , element: <Cart/>},
+    { path: "/wishlist", element: <Wishlist /> },
     {
         path : 'categories/products/:prefix',
         element : <Products/>,
