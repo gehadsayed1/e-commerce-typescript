@@ -1,70 +1,136 @@
-import { createBrowserRouter , RouterProvider } from 'react-router-dom';
-// layout
-import {MainLayout} from '@layouts/index.ts'
+import { lazy, Suspense } from "react";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+// layouts
+import { MainLayout } from "@layouts/index";
+// components
+import { LottieHandler, PageSuspenseFallback} from "@components/feedback";
 // pages
-import Home from '@pages/Home';
-import AbutUs from '@pages/AbutUs';
-import Products from '@pages/Products';
-import Categories from '@pages/Categories';
-import Login from '@pages/Login';
-import Register from '@pages/Register';
-import Error from '@pages/Error';
-import Cart from '@pages/Cart';
-import Wishlist from '@pages/Wishlist';
+const Home = lazy(() => import("@pages/Home"));
+const Wishlist = lazy(() => import("@pages/Wishlist"));
+const Categories = lazy(() => import("@pages/Categories"));
+const Cart = lazy(() => import("@pages/Cart"));
+const Products = lazy(() => import("@pages/Products"));
+const AboutUs = lazy(() => import("@pages/AboutUs"));
+const Login = lazy(() => import("@pages/Login"));
+const Register = lazy(() => import("@pages/Register"));
+const Profile = lazy(() => import("@pages/Profile"));
+import Error from "@pages/Error";
 
-function AppRouter() {
-    
-const router = createBrowserRouter([{
-    path: '/',
-    element: <MainLayout />,
-    errorElement: <Error/>,
+// protect route
+import ProtectedRoute from "@components/Auth/ProtectedRoute";
 
-    children :[
-    {
-        index: true,
-        element: <Home/>
-    },
-    {
-        path : 'abut-us',
-        element : <AbutUs/>
-    },
-    {path: "/cart" , element: <Cart/>},
-    { path: "/wishlist", element: <Wishlist /> },
-    {
-        path : 'categories/products/:prefix',
-        element : <Products/>,
-        loader: ({ params }) => {
-            if (
-              typeof params.prefix !== "string" ||
-              !/^[a-z]+$/i.test(params.prefix)
-            ) {
-              throw new Response("Bad Request", {
-                statusText: "Category not found",
-                status: 400,
-              });
-            }
-            return true;
+
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: (
+      <Suspense
+        fallback={
+          <div style={{ marginTop: "10%" }}>
+            <LottieHandler type="loading" message="Loading please wait..." />
+          </div>
         }
-    },
-    {
-        path : 'categories',
-        element : <Categories/>
-    },
-    {
-        path : 'login',
-        element : <Login/>
-    },
-    {
-        path : 'register',
-        element : <Register/>
-    }
+      >
+        <MainLayout />
+      </Suspense>
+    ),
+    errorElement: <Error />,
+    children: [
+      {
+        index: true,
+        element: (
+          <PageSuspenseFallback>
+            <Home />
+          </PageSuspenseFallback>
+        ),
+      },
+      {
+        path: "/cart",
+        element: (
+          <PageSuspenseFallback>
+            <Cart />
+          </PageSuspenseFallback>
+        ),
+      },
+      {
+        path: "/wishlist",
+        element: (
+          <ProtectedRoute>
+            <PageSuspenseFallback>
+              <Wishlist />
+            </PageSuspenseFallback>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/categories",
+        element: (
+          <PageSuspenseFallback>
+            <Categories />
+          </PageSuspenseFallback>
+        ),
+      },
+      {
+        path: "/categories/products/:prefix",
+        element: (
+          <PageSuspenseFallback>
+            <Products />
+          </PageSuspenseFallback>
+        ),
+        loader: ({ params }) => {
+          if (
+            typeof params.prefix !== "string" ||
+            !/^[a-z]+$/i.test(params.prefix)
+          ) {
+            throw new Response("Bad Request", {
+              statusText: "Category not found",
+              status: 400,
+            });
+          }
+          return true;
+        },
+      },
+      {
+        path: "about-us",
+        element: (
+          <PageSuspenseFallback>
+            <AboutUs />
+          </PageSuspenseFallback>
+        ),
+      },
+      {
+        path: "login",
+        element: (
+          <PageSuspenseFallback>
+            <Login />
+          </PageSuspenseFallback>
+        ),
+      },
+      {
+        path: "register",
+        element: (
+          <PageSuspenseFallback>
+            <Register />
+          </PageSuspenseFallback>
+        ),
+      },
+      {
+        path: "profile",
+        element: (
+          <ProtectedRoute>
+            <PageSuspenseFallback>
+              <Profile />
+            </PageSuspenseFallback>
+          </ProtectedRoute>
+        ),
+      },
+    ],
+  },
+]);
 
+const AppRouter = () => {
+  return <RouterProvider router={router} />;
+};
 
-]
-}])
-  return (
-    <RouterProvider router={router} />
-  )
-}
-
-export default AppRouter
+export default AppRouter;

@@ -1,57 +1,88 @@
-import {HeaderBasket , HeaderWishlist }from '../../ecommerce'
-import { Badge, Container, Navbar ,Nav} from 'react-bootstrap'
-import { NavLink } from 'react-router-dom' 
-import styles from './styles.module.css'
+import { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@store/hooks";
+import { authLogout } from "@store/auth/authSlice";
+import { actGetWishlist } from "@store/wishlist/WishlistSlice";
+import { NavLink } from "react-router-dom";
+import { Badge, Navbar, Nav, Container, NavDropdown } from "react-bootstrap";
+import HeaderLeftBar from "./HeaderLeftBar/HeaderLeftBar";
+import styles from "./styles.module.css";
 
-const {headerContainer ,headerLogo} = styles
-function Header() {
+const { headerContainer, headerLogo } = styles;
+
+const Header = () => {
+  const dispatch = useAppDispatch();
+
+  const { accessToken, user } = useAppSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (accessToken) {
+      dispatch(actGetWishlist("ProductIds"));
+    }
+  }, [dispatch, accessToken]);
+
   return (
-   <header>
-    <div className={headerContainer}>
-    <h1 className={headerLogo}><span>our</span> <Badge bg="info">Ecom</Badge></h1>
-    {/* basket */}
-    <div className='d-flex align-items-center '>
-    <HeaderWishlist/>
-    <HeaderBasket/>
-    </div>
-   
-    </div>
-    <Navbar
-    bg="dark"
-    data-bs-theme="dark"
-     expand="lg"
-      className="bg-body-tertiary">
-      <Container>
-        <Navbar.Brand as={NavLink}  to="/">Home</Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            <Nav.Link as={NavLink}  to="categories">categories</Nav.Link>
-            <Nav.Link as={NavLink}  to="abut-us">Abut Us</Nav.Link>
-          
-          </Nav>
-          <Nav >
-            <Nav.Link as={NavLink}  to="login">login</Nav.Link>
-            <Nav.Link as={NavLink}  to="register">Register</Nav.Link>
-            
-            {/* <NavDropdown title="Dropdown" id="basic-nav-dropdown">
-              <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
-              <NavDropdown.Item href="#action/3.2">
-                Another action
-              </NavDropdown.Item>
-              <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
-              <NavDropdown.Divider />
-              <NavDropdown.Item href="#action/3.4">
-                Separated link
-              </NavDropdown.Item>
-            </NavDropdown> */}
-          </Nav>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
-  
-   </header>
-  )
-}
+    <header>
+      <div className={headerContainer}>
+        <h1 className={headerLogo}>
+          <span>Our</span> <Badge bg="info">eCom</Badge>
+        </h1>
+        <HeaderLeftBar />
+      </div>
+      <Navbar
+        expand="lg"
+        className="bg-body-tertiary"
+        bg="dark"
+        data-bs-theme="dark"
+      >
+        <Container>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="me-auto">
+              <Nav.Link as={NavLink} to="/">
+                Home
+              </Nav.Link>
+              <Nav.Link as={NavLink} to="categories">
+                Categories
+              </Nav.Link>
+              <Nav.Link as={NavLink} to="about-us">
+                About
+              </Nav.Link>
+            </Nav>
+            <Nav>
+              {!accessToken ? (
+                <>
+                  <Nav.Link as={NavLink} to="login">
+                    Login
+                  </Nav.Link>
+                  <Nav.Link as={NavLink} to="register">
+                    Register
+                  </Nav.Link>
+                </>
+              ) : (
+                <NavDropdown
+                  title={`Welcome: ${user?.firstName} ${user?.lastName}`}
+                  id="basic-nav-dropdown"
+                >
+                  <NavDropdown.Item as={NavLink} to="profile">
+                    Profile
+                  </NavDropdown.Item>
+                  <NavDropdown.Item>Orders</NavDropdown.Item>
+                  <NavDropdown.Divider />
+                  <NavDropdown.Item
+                    as={NavLink}
+                    to="/"
+                    onClick={() => dispatch(authLogout())}
+                  >
+                    Logout
+                  </NavDropdown.Item>
+                </NavDropdown>
+              )}
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
+    </header>
+  );
+};
 
-export default Header
+export default Header;

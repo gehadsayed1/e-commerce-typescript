@@ -1,8 +1,8 @@
 
 import { createSlice } from "@reduxjs/toolkit";
 import actGetProductsByCatPrefix from "./act/actGetProductsByCatPrefix";
-import { TLoading } from "@customTypes/Shared";
-import { TProduct } from "@customTypes/product";
+import { TLoading ,TProduct ,isString} from "@types";
+
 
 
 
@@ -39,7 +39,7 @@ const ProductsSlice = createSlice({
         })
         builder.addCase(actGetProductsByCatPrefix.rejected,(state , action)=>{
             state.loading = "failed"
-            if (action.payload && typeof action.payload === "string") {
+            if (isString(action.payload)) {
                 state.error = action.error.message as string 
             }
             

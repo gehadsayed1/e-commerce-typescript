@@ -1,50 +1,16 @@
-import { useCallback, useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "@store/hooks";
-import {
-  actGetProductsByItems,
-  cartItemChangeQuantity,
-  cartItemRemove,
-} from "@store/cart/CartSlice";
+import useCart from "@hooks/useCart";
 import { Heading } from "@components/common";
-
-
-import Loading from "@components/feedback/loading/Loading";
 import CartItemList from "@components/ecommerce/cartItemList/CartItemList";
 import CartSubtotalPrice from "@components/ecommerce/cartSubtotalPrice/CartSubtotalPrice";
+import { Loading, LottieHandler } from "@components/feedback";
 
 const Cart = () => {
-  const dispatch = useAppDispatch();
-  const { items, productsFullInfo, loading, error } = useAppSelector(
-    (state) => state.cart
-  );
-
-  useEffect(() => {
-    dispatch(actGetProductsByItems());
-  }, [dispatch]);
-
-  const products = productsFullInfo.map((el) => ({
-    ...el,
-    quantity: items[el.id],
-  }));
-
-  const changeQuantityHandler = useCallback(
-    (id: number, quantity: number) => {
-      dispatch(cartItemChangeQuantity({ id, quantity }));
-    },
-    [dispatch]
-  );
-
-  const removeItemHandler = useCallback(
-    (id: number) => {
-      dispatch(cartItemRemove(id));
-    },
-    [dispatch]
-  );
+const {loading , error , products , changeQuantityHandler , removeItemHandler} = useCart();
 
   return (
     <>
-      <Heading>Your Cart</Heading>
-      <Loading status={loading} error={error}>
+      <Heading title="Your Cart"/>
+      <Loading status={loading} error={error} type="cart">
         {products.length ? (
           <>
             <CartItemList
@@ -55,7 +21,7 @@ const Cart = () => {
             <CartSubtotalPrice products={products} />
           </>
         ) : (
-          "Your Cart is empty"
+          <LottieHandler message="your cart is empty" type="empty"/>
         )}
       </Loading>
     </>

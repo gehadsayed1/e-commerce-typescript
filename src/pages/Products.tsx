@@ -1,42 +1,19 @@
-import { useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "@store/hooks";
-import {
-  actGetProductsByCatPrefix,
-  productsCleanUp,
-} from "@store/products/productsSlice";
+
 import { GridList, Heading } from "@components/common";
 import { Product } from "@components/ecommerce";
-
-import { TProduct } from "@customTypes/product";
-import Loading from "@components/feedback/loading/Loading";
+import useProducts from "@hooks/useProducts";
+import { TProduct } from "@types";
+import {Loading} from "@components/feedback";
 
 const Products = () => {
-  const params = useParams();
-  const dispatch = useAppDispatch();
-  const { loading, error, records } = useAppSelector((state) => state.products);
-  const cartItems = useAppSelector((state) => state.cart.items);
-  const wishListItemsId = useAppSelector((state) => state.wishlist.itemsId);
-
-  useEffect(() => {
-    dispatch(actGetProductsByCatPrefix(params.prefix as string));
-
-    return () => {
-      dispatch(productsCleanUp());
-    };
-  }, [dispatch, params]);
-
-  const productsFullInfo = records.map((el) => ({
-    ...el,
-    quantity: cartItems[el.id],
-    isLiked: wishListItemsId.includes(el.id),
-  }));
+const {loading , error , productsFullInfo ,productPrefix} = useProducts()
 
   return (
     <>
-      <Heading>{params.prefix?.toUpperCase()} Products</Heading>
-      <Loading status={loading} error={error}>
+      <Heading title={`${productPrefix?.toUpperCase()} Products`}/>
+      <Loading status={loading} error={error} type="product">
         <GridList<TProduct>
+          emptyMessage="There are no products"
           records={productsFullInfo}
           renderItem={(record) => <Product {...record} />}
         />

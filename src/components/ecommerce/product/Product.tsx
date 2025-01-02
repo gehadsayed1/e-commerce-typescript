@@ -1,16 +1,16 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { useAppDispatch } from "@store/hooks";
 import { actLikeToggle } from "@store/wishlist/WishlistSlice";
 import { addToCart } from "@store/cart/CartSlice";
 import Like from "@assets/like.svg?react";
 import LikeFill from "@assets/like-fill.svg?react";
 import { Button, Spinner } from "react-bootstrap";
-import { TProduct } from "@customTypes/product";
+import { TProduct } from "@types";
 
 import styles from "./styles.module.css";
 const { product, productImg, maximumNotice, wishlistBtn } = styles;
 
-const Product = ({
+const Product =memo (({
   id,
   title,
   price,
@@ -89,6 +89,6 @@ const Product = ({
       </Button>
     </div>
   );
-};
+});
 
 export default Product;
