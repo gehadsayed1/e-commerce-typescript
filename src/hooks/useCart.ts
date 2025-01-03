@@ -6,40 +6,57 @@ import {
   cartItemRemove,
   cleanCartProductsFullInfo,
 } from "@store/cart/CartSlice";
+import { resetOrderStatus } from "@store/orders/orderSlice";
 
-function useCart() {
-    const dispatch = useAppDispatch();
-    const { items, productsFullInfo, loading, error } = useAppSelector(
-      (state) => state.cart
-    );
-  
-    useEffect(() => {
-   const proems =   dispatch(actGetProductsByItems());
-      return () => {
-        proems.abort();
-        dispatch( cleanCartProductsFullInfo())
-      };
-    }, [dispatch]);
-  
-    const products = productsFullInfo.map((el) => ({
-      ...el,
-      quantity: items[el.id],
-    }));
-  
-    const changeQuantityHandler = useCallback(
-      (id: number, quantity: number) => {
-        dispatch(cartItemChangeQuantity({ id, quantity }));
-      },
-      [dispatch]
-    );
-  
-    const removeItemHandler = useCallback(
-      (id: number) => {
-        dispatch(cartItemRemove(id));
-      },
-      [dispatch]
-    );
-  return {removeItemHandler , changeQuantityHandler , products , loading , error}
-}
+const useCart = () => {
+  const dispatch = useAppDispatch();
 
-export default useCart
+  const { items, productsFullInfo, loading, error } = useAppSelector(
+    (state) => state.cart
+  );
+
+  const userAccessToken = useAppSelector((state) => state.auth.accessToken);
+
+  const placeOrderStatus = useAppSelector((state) => state.orders.loading);
+
+  const changeQuantityHandler = useCallback(
+    (id: number, quantity: number) => {
+      dispatch(cartItemChangeQuantity({ id, quantity }));
+    },
+    [dispatch]
+  );
+
+  const removeItemHandler = useCallback(
+    (id: number) => {
+      dispatch(cartItemRemove(id));
+    },
+    [dispatch]
+  );
+
+  const products = productsFullInfo.map((el) => ({
+    ...el,
+    quantity: items[el.id],
+  }));
+
+  useEffect(() => {
+    const promise = dispatch(actGetProductsByItems());
+
+    return () => {
+      promise.abort();
+      dispatch(cleanCartProductsFullInfo());
+      dispatch(resetOrderStatus());
+    };
+  }, [dispatch]);
+
+  return {
+    loading,
+    error,
+    products,
+    userAccessToken,
+    placeOrderStatus,
+    changeQuantityHandler,
+    removeItemHandler,
+  };
+};
+
+export default useCart;
